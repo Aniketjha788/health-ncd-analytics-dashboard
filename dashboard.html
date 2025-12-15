@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NCD Screening Dashboard - Bootstrap Version</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap 5 CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      background: #f4f6f9;
+    }
+    .card-title {
+      font-size: 16px;
+      color: #6c757d;
+    }
+    .kpi-value {
+      font-size: 28px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
+<script>
+Papa.parse("NCD_Data.csv", {
+    download: true,
+    header: true,
+    complete: function(results) {
+        console.log(results.data);  // Your excel rows
+        // You will get actual BP, Sugar, BMI, etc. here
+        // Then update graphs dynamically
+    }
+});
+</script>
+
+<body>
+
+<div class="container py-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-1">
+  <div>
+    <h2 class="mb-1 text-primary">NCD Screening Dashboard</h2>
+    <p class="text-muted mb-0">Case Study 1 • Bootstrap Dashboard • (Aniket Jha)</p>
+  </div>
+  <div>
+    <button id="logoutBtn" class="btn btn-outline-danger btn-sm">Logout</button>
+  </div>
+</div>
+
+  <!-- KPI Row -->
+  <div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Total Screenings</h5>
+          <div class="kpi-value text-primary">18,240</div>
+          <small class="text-success">+6.2% vs last month</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">High-Risk Patients</h5>
+          <div class="kpi-value text-danger">2,120</div>
+          <small class="text-muted">Diabetes / BP / Obesity</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Follow-up Completion</h5>
+          <div class="kpi-value text-success">65%</div>
+          <small class="text-muted">1,020 of 1,560</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Sync Failure Rate</h5>
+          <div class="kpi-value text-warning">8%</div>
+          <small class="text-muted">System performance</small>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Charts Row -->
+  <div class="row g-3">
+
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">PHC-wise Screening Count</h5>
+          <canvas id="phcChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Risk Category Distribution</h5>
+          <canvas id="riskChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Table -->
+  <div class="card shadow-sm mt-4">
+    <div class="card-body">
+      <h5 class="card-title">PHC Performance Snapshot</h5>
+
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped mt-3">
+          <thead class="table-dark">
+            <tr>
+              <th>PHC</th>
+              <th>Screenings</th>
+              <th>High Risk</th>
+              <th>Follow-up Completed</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>PHC-01 (Urban)</td><td>2,130</td><td>310</td><td>180</td></tr>
+            <tr><td>PHC-02 (Semi-urban)</td><td>1,980</td><td>260</td><td>150</td></tr>
+            <tr><td>PHC-03 (Urban)</td><td>2,540</td><td>390</td><td>240</td></tr>
+            <tr><td>PHC-04 (Rural)</td><td>1,720</td><td>210</td><td>160</td></tr>
+            <tr><td>PHC-05 (Rural)</td><td>1,380</td><td>190</td><td>120</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Chart.js Scripts -->
+<script>
+  // PHC-wise Bar Chart
+  new Chart(document.getElementById("phcChart"), {
+    type: 'bar',
+    data: {
+      labels: ['PHC-01','PHC-02','PHC-03','PHC-04','PHC-05'],
+      datasets: [{
+        label: 'Screenings',
+        data: [2130,1980,2540,1720,1380],
+        backgroundColor: '#0d6efd'
+      }]
+    }
+  });
+
+  // Risk Pie Chart
+  new Chart(document.getElementById("riskChart"), {
+    type: 'pie',
+    data: {
+      labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+      datasets: [{
+        data: [12450, 3670, 2120],
+        backgroundColor: ['#198754', '#ffc107', '#dc3545']
+      }]
+    }
+  });
+</script>
+
+
+<script>
+  // Simple front-end auth protection using localStorage
+  (function () {
+    try {
+      if (localStorage.getItem('loggedIn') !== 'true') {
+        window.location.href = 'index.html#login';
+        return;
+      }
+      var email = localStorage.getItem('userEmail') || '';
+      console.log('Logged in as', email);
+    } catch (e) {
+      console.warn('Auth check error:', e);
+    }
+
+    var logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function () {
+        try {
+          localStorage.removeItem('loggedIn');
+          localStorage.removeItem('userEmail');
+        } catch (e) {
+          console.warn('Error clearing auth storage:', e);
+        }
+        window.location.href = 'index.html#login';
+      });
+    }
+  })();
+</script>
+
+
+</body>
+</html>
